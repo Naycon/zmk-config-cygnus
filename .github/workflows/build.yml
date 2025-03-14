@@ -16,9 +16,9 @@ jobs:
     name: Build
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Cache west modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-zephyr-modules
         with:
@@ -28,7 +28,7 @@ jobs:
             zephyr/
             bootloader/
             zmk/
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('manifest-dir/west.yml') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('config/west.yml') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
@@ -42,14 +42,14 @@ jobs:
       - name: West Build (Cygnus Left)
         run: west build -s zmk/app -b nice_nano_v2 -- -DSHIELD=cygnus_left -DZMK_CONFIG="${GITHUB_WORKSPACE}/config"
       - name: Cygnus Left Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: firmware-cygnus-left
           path: build/zephyr/zmk.uf2
       - name: West Build (Cygnus Right)
         run: west build -s zmk/app -b nice_nano_v2 --pristine -- -DSHIELD=cygnus_right -DZMK_CONFIG="${GITHUB_WORKSPACE}/config"
       - name: Cygnus Right Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: firmware-cygnus-right
           path: build/zephyr/zmk.uf2 
