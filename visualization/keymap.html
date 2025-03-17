@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZMK Keymap Visualization - Cygnus Keyboard</title>
+    <style>
+        :root {
+            --key-color: #ffffff;
+            --key-border: #e0e0e0;
+            --key-text: #333;
+            --key-highlight: #c2e3ff;
+            --key-highlight-border: #93c4ff;
+            --key-active: #ffecbd;
+            --key-active-border: #ffda8a;
+            --bg-color: #2a2a2a;
+            --text-color: #f0f0f0;
+            --layer-btn-bg: #3a3a3a;
+            --layer-btn-active: #505050;
+            --keyboard-bg: #f5f5f5;
+            --keyboard-border: #e2e2e2;
+            --key-shadow: rgba(0, 0, 0, 0.15);
+            --key-shadow-hover: rgba(0, 0, 0, 0.2);
+            --modifier-key-color: #ececec;
+            --modifier-key-border: #d8d8d8;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            margin-top: 5px;
+            margin-bottom: 20px;
+            font-weight: normal;
+            font-size: 1.2rem;
+            color: #aaa;
+        }
+        
+        .controls {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .layer-button {
+            padding: 8px 16px;
+            background-color: var(--layer-btn-bg);
+            border: none;
+            border-radius: 4px;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        .layer-button:hover {
+            background-color: var(--layer-btn-active);
+        }
+        
+        .layer-button.active {
+            background-color: var(--layer-btn-active);
+            border-bottom: 3px solid var(--key-highlight);
+        }
+        
+        .keyboard-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            margin-top: 40px;
+        }
+        
+        .keyboard {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+        
+        .keyboard:before {
+            display: none;
+        }
+        
+        .half {
+            display: grid;
+            grid-template-columns: repeat(6, 54px);
+            grid-template-rows: repeat(4, 54px);
+            gap: 8px;
+            padding: 25px 25px 60px 25px;
+            border-radius: 14px;
+            background-color: var(--keyboard-bg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            position: relative;
+            transform: none;
+        }
+        
+        .half.left {
+            border-radius: 14px;
+            clip-path: polygon(
+                0% 0%,
+                100% 0%,
+                100% 80%,
+                75% 100%,
+                0% 100%
+            );
+            padding-bottom: 70px;
+        }
+        
+        .half.right {
+            border-radius: 14px;
+            clip-path: polygon(
+                0% 0%,
+                100% 0%,
+                100% 100%,
+                25% 100%,
+                0% 80%
+            );
+            padding-bottom: 70px;
+        }
+        
+        .half:before {
+            content: "";
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            border: 1px solid var(--keyboard-border);
+            border-radius: inherit;
+            pointer-events: none;
+        }
+        
+        .half.left:after {
+            content: "LEFT";
+            position: absolute;
+            top: -25px;
+            left: 10px;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        
+        .half.right:after {
+            content: "RIGHT";
+            position: absolute;
+            top: -25px;
+            right: 10px;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        
+        .key {
+            background-color: var(--key-color);
+            border: 1px solid var(--key-border);
+            border-radius: 8px;
+            color: var(--key-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            user-select: none;
+            transition: all 0.2s;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08);
+            height: 48px;
+            width: 48px;
+            margin: auto;
+        }
+        
+        .key:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 7px 7px 0 0;
+            pointer-events: none;
+        }
+        
+        .key:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+        
+        .key.transparent {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: rgba(224, 224, 224, 0.2);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .key.transparent .key-primary,
+        .key.transparent .key-secondary {
+            color: rgba(150, 150, 150, 0.25);
+        }
+        
+        .key.thumb {
+            grid-row: 4;
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background-color: var(--modifier-key-color);
+            border-color: var(--modifier-key-border);
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+        
+        .key.thumb:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+        
+        .key.thumb:after {
+            border-radius: 7px 7px 0 0;
+        }
+        
+        /* Position thumb keys properly */
+        .half.left .key:nth-last-child(3) {
+            grid-column: 4;
+            grid-row: 4;
+            transform: translate(0, 25px);
+        }
+        .half.left .key:nth-last-child(2) {
+            grid-column: 5;
+            grid-row: 4;
+            transform: translate(0, 25px);
+        }
+        .half.left .key:nth-last-child(1) {
+            grid-column: 6;
+            grid-row: 4;
+            transform: translate(0, 25px);
+        }
+        
+        .half.right .key:nth-last-child(3) {
+            grid-column: 2;
+            grid-row: 4;
+            transform: translate(-70px, 25px);
+        }
+        .half.right .key:nth-last-child(2) {
+            grid-column: 3;
+            grid-row: 4;
+            transform: translate(-70px, 25px);
+        }
+        .half.right .key:nth-last-child(1) {
+            grid-column: 4;
+            grid-row: 4;
+            transform: translate(-70px, 25px);
+        }
+        
+        .key-primary {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+        
+        .key-secondary {
+            font-size: 10px;
+            color: #666;
+            text-align: center;
+            margin-top: -2px;
+        }
+        
+        .key.key-highlight {
+            background-color: var(--key-highlight);
+            border-color: var(--key-highlight-border);
+            box-shadow: 0 3px 5px rgba(0, 120, 255, 0.08);
+        }
+        
+        .key.key-highlight.clickable:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 120, 255, 0.15);
+            border-color: #6daeff;
+        }
+        
+        .key.key-highlight.clickable {
+            position: relative;
+        }
+        
+        .key.key-highlight.clickable:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 7px 7px 0 0;
+            pointer-events: none;
+        }
+        
+        .key-active {
+            background-color: var(--key-active);
+            border-color: var(--key-active-border);
+            box-shadow: 0 3px 5px rgba(255, 150, 0, 0.08);
+        }
+        
+        .legend {
+            margin-top: 40px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 1px solid var(--key-border);
+        }
+        
+        .legend-text {
+            font-size: 14px;
+        }
+        
+        .info {
+            margin-top: 30px;
+            text-align: center;
+            max-width: 800px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #aaa;
+        }
+        
+        /* Left half keys */
+        /* First Row - Left */
+        .half.left > .key:nth-child(1) {
+            background-color: var(--modifier-key-color);
+            border-color: var(--modifier-key-border);
+            transform: translate(0, 0);
+            grid-column: 1;
+            grid-row: 1;
+        }
+        
+        .half.left > .key:nth-child(2) {
+            grid-column: 2;
+            grid-row: 1;
+            transform: translateY(0);
+        }
+        
+        .half.left > .key:nth-child(3) {
+            grid-column: 3;
+            grid-row: 1;
+            transform: translateY(-5px);
+        }
+        
+        .half.left > .key:nth-child(4) {
+            grid-column: 4;
+            grid-row: 1;
+            transform: translateY(-8px);
+        }
+        
+        .half.left > .key:nth-child(5) {
+            grid-column: 5;
+            grid-row: 1;
+            transform: translateY(-5px);
+        }
+        
+        .half.left > .key:nth-child(6) {
+            grid-column: 6;
+            grid-row: 1;
+            transform: translateY(0);
+        }
+        
+        /* Second Row - Left */
+        .half.left > .key:nth-child(7) {
+            grid-column: 1;
+            grid-row: 2;
+            background-color: var(--modifier-key-color);
+            border-color: var(--modifier-key-border);
+            transform: translate(0, 0);
+        }
+        
+        .half.left > .key:nth-child(8) {
+            grid-column: 2;
+            grid-row: 2;
+            transform: translateY(0);
+        }
+        
+        .half.left > .key:nth-child(9) {
+            grid-column: 3;
+            grid-row: 2;
+            transform: translateY(-5px);
+        }
+        
+        .half.left > .key:nth-child(10) {
+            grid-column: 4;
+            grid-row: 2;
+            transform: translateY(-8px);
+        }
+        
+        .half.left > .key:nth-child(11) {
+            grid-column: 5;
+            grid-row: 2;
+            transform: translateY(-5px);
+        }
+        
+        .half.left > .key:nth-child(12) {
+            grid-column: 6;
+            grid-row: 2;
+            transform: translateY(0);
+        }
+        
+        /* Third Row - Left */
+        .half.left > .key:nth-child(13) {
+            grid-column: 1;
+            grid-row: 3;
+            background-color: var(--modifier-key-color);
+            border-color: var(--modifier-key-border);
+            transform: translate(0, 0);
+        }
+        
+        .half.left > .key:nth-child(14) {
+            grid-column: 2;
+            grid-row: 3;
+            transform: translateY(0);
+        }
+        
+        .half.left > .key:nth-child(15) {
+            grid-column: 3;
+            grid-row: 3;
+            transform: translateY(-5px);
+        }
+        
+        .half.left > .key:nth-child(16) {
+            grid-column: 4;
+            grid-row: 3;
+            transform: translateY(-8px);
+        }
+        
+        .half.left > .key:nth-child(17) {
+            grid-column: 5;
+            grid-row: 3;
+            transform: translateY(-5px);
+        }
+        
+        .half.left > .key:nth-child(18) {
+            grid-column: 6;
+            grid-row: 3;
+            transform: translateY(0);
+        }
+        
+        /* Right half keys */
+        /* First Row - Right */
+        .half.right > .key:nth-child(1) {
+            grid-column: 1;
+            grid-row: 1;
+            transform: translateY(0);
+        }
+        
+        .half.right > .key:nth-child(2) {
+            grid-column: 2;
+            grid-row: 1;
+            transform: translateY(-5px);
+        }
+        
+        .half.right > .key:nth-child(3) {
+            grid-column: 3;
+            grid-row: 1;
+            transform: translateY(-8px);
+        }
+        
+        .half.right > .key:nth-child(4) {
+            grid-column: 4;
+            grid-row: 1;
+            transform: translateY(-5px);
+        }
+        
+        .half.right > .key:nth-child(5) {
+            grid-column: 5;
+            grid-row: 1;
+            transform: translateY(0);
+        }
+        
+        .half.right > .key:nth-child(6) {
+            grid-column: 6;
+            grid-row: 1;
+            transform: translateY(0);
+        }
+        
+        /* Second Row - Right */
+        .half.right > .key:nth-child(7) {
+            grid-column: 1;
+            grid-row: 2;
+            transform: translateY(0);
+        }
+        
+        .half.right > .key:nth-child(8) {
+            grid-column: 2;
+            grid-row: 2;
+            transform: translateY(-5px);
+        }
+        
+        .half.right > .key:nth-child(9) {
+            grid-column: 3;
+            grid-row: 2;
+            transform: translateY(-8px);
+        }
+        
+        .half.right > .key:nth-child(10) {
+            grid-column: 4;
+            grid-row: 2;
+            transform: translateY(-5px);
+        }
+        
+        .half.right > .key:nth-child(11) {
+            grid-column: 5;
+            grid-row: 2;
+            transform: translateY(0);
+        }
+        
+        .half.right > .key:nth-child(12) {
+            grid-column: 6;
+            grid-row: 2;
+            transform: translateY(0);
+        }
+        
+        /* Third Row - Right */
+        .half.right > .key:nth-child(13) {
+            grid-column: 1;
+            grid-row: 3;
+            transform: translateY(0);
+        }
+        
+        .half.right > .key:nth-child(14) {
+            grid-column: 2;
+            grid-row: 3;
+            transform: translateY(-5px);
+        }
+        
+        .half.right > .key:nth-child(15) {
+            grid-column: 3;
+            grid-row: 3;
+            transform: translateY(-8px);
+        }
+        
+        .half.right > .key:nth-child(16) {
+            grid-column: 4;
+            grid-row: 3;
+            transform: translateY(-5px);
+        }
+        
+        .half.right > .key:nth-child(17) {
+            grid-column: 5;
+            grid-row: 3;
+            transform: translateY(0);
+        }
+        
+        .half.right > .key:nth-child(18) {
+            grid-column: 6;
+            grid-row: 3;
+            transform: translateY(0);
+            background-color: var(--key-active);
+            border-color: var(--key-active-border);
+        }
+        
+        @media (max-width: 767px) {
+            .half {
+                grid-template-columns: repeat(6, 45px);
+                grid-template-rows: repeat(4, 45px);
+                gap: 5px;
+            }
+            
+            .key-primary {
+                font-size: 12px;
+            }
+            
+            .key-secondary {
+                font-size: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Cygnus Keyboard Layout</h1>
+    <h2>ZMK Firmware Visualization</h2>
+    
+    <div class="controls">
+        <button class="layer-button active" data-layer="BASE">Base</button>
+        <button class="layer-button" data-layer="BRACKETS">Brackets</button>
+        <button class="layer-button" data-layer="QUOTES">Quotes</button>
+        <button class="layer-button" data-layer="SYMBOLS">Symbols</button>
+        <button class="layer-button" data-layer="ARROWS">Arrows</button>
+        <button class="layer-button" data-layer="NUMBERS">Numbers</button>
+    </div>
+    
+    <div class="keyboard-container">
+        <div class="keyboard">
+            <div class="half left" id="left-half">
+                <!-- Left half keys will be generated by JavaScript -->
+            </div>
+            <div class="half right" id="right-half">
+                <!-- Right half keys will be generated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: var(--key-color);"></div>
+            <div class="legend-text">Regular Key</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: var(--key-highlight);"></div>
+            <div class="legend-text">Layer Access Key (clickable)</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: var(--key-active);"></div>
+            <div class="legend-text">Modifier Key</div>
+        </div>
+    </div>
+    
+    <div class="info">
+        <p>This visualization is based on the ZMK firmware configuration for the Cygnus split keyboard with a 3x6 layout. Click on the layer buttons above to view different layers. You can also click directly on highlighted layer keys in the keyboard to switch layers.</p>
+        <p>The keyboard uses a 6-layer setup including Base layer (QWERTY with Swedish layout), Brackets, Quotes, Symbols, Arrows, and Numbers layers.</p>
+        <p><a href="wiring.html" style="color: #93c4ff; text-decoration: none; font-weight: bold;">View Controller Wiring Visualization</a></p>
+    </div>
+    
+    <script>
+        // Define the keyboard layout
+        const keymap = {
+            BASE: {
+                left: [
+                    { primary: "TAB", secondary: "" },
+                    { primary: "Q", secondary: "CTRL" },
+                    { primary: "W", secondary: "" },
+                    { primary: "E", secondary: "" },
+                    { primary: "R", secondary: "" },
+                    { primary: "T", secondary: "" },
+                    
+                    { primary: "ESC", secondary: "" },
+                    { primary: "A", secondary: "" },
+                    { primary: "S", secondary: "" },
+                    { primary: "D", secondary: "NUMBERS", highlight: true },
+                    { primary: "F", secondary: "ARROWS", highlight: true },
+                    { primary: "G", secondary: "" },
+                    
+                    { primary: "SHIFT", secondary: "", modifier: true },
+                    { primary: "Z", secondary: "" },
+                    { primary: "X", secondary: "" },
+                    { primary: "C", secondary: "" },
+                    { primary: "V", secondary: "" },
+                    { primary: "B", secondary: "" },
+                    
+                    { primary: "ALT", secondary: "", modifier: true, thumb: true },
+                    { primary: "GUI", secondary: "", modifier: true, thumb: true },
+                    { primary: "SPACE", secondary: "CTRL", modifier: true, thumb: true }
+                ],
+                right: [
+                    { primary: "Y", secondary: "" },
+                    { primary: "U", secondary: "" },
+                    { primary: "I", secondary: "" },
+                    { primary: "O", secondary: "" },
+                    { primary: "P", secondary: "" },
+                    { primary: "Å", secondary: "" },
+                    
+                    { primary: "H", secondary: "" },
+                    { primary: "J", secondary: "BRACKETS", highlight: true },
+                    { primary: "K", secondary: "QUOTES", highlight: true },
+                    { primary: "L", secondary: "SYMBOLS", highlight: true },
+                    { primary: "Ö", secondary: "" },
+                    { primary: "Ä", secondary: "" },
+                    
+                    { primary: "N", secondary: "" },
+                    { primary: "M", secondary: "" },
+                    { primary: ",", secondary: "" },
+                    { primary: ".", secondary: "" },
+                    { primary: ".", secondary: "" },
+                    { primary: "PLAY", secondary: "", modifier: true },
+                    
+                    { primary: "ENTER", secondary: "CTRL", modifier: true, thumb: true },
+                    { primary: "BSPC", secondary: "", thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true }
+                ]
+            },
+            BRACKETS: {
+                left: [
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "[", secondary: "" },
+                    { primary: "]", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "<", secondary: "" },
+                    { primary: ">", secondary: "" },
+                    { primary: "(", secondary: "" },
+                    { primary: ")", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true }
+                ],
+                right: [
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "?", secondary: "" },
+                    { primary: "!", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "{", secondary: "" },
+                    { primary: "}", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: ",", secondary: "" },
+                    { primary: ",", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true }
+                ]
+            },
+            QUOTES: {
+                left: [
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "~", secondary: "" },
+                    { primary: "_", secondary: "" },
+                    { primary: "-", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "\\", secondary: "" },
+                    { primary: "/", secondary: "" },
+                    { primary: "'", secondary: "" },
+                    { primary: "\"", secondary: "" },
+                    { primary: "`", secondary: "" },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true }
+                ],
+                right: [
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: ":", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: ";", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true }
+                ]
+            },
+            SYMBOLS: {
+                left: [
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "^", secondary: "" },
+                    { primary: "%", secondary: "" },
+                    { primary: "#", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "@", secondary: "" },
+                    { primary: "|", secondary: "" },
+                    { primary: "&", secondary: "" },
+                    { primary: "=", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true }
+                ],
+                right: [
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "*", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "0", secondary: "" },
+                    { primary: "$", secondary: "" },
+                    { primary: "+", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true }
+                ]
+            },
+            ARROWS: {
+                left: [
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "HOME", secondary: "" },
+                    { primary: "END", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true }
+                ],
+                right: [
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "PG_UP", secondary: "" },
+                    { primary: "PG_DN", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "RGB", secondary: "ON" },
+                    { primary: "RGB", secondary: "MODE" },
+                    
+                    { primary: "LEFT", secondary: "" },
+                    { primary: "DOWN", secondary: "" },
+                    { primary: "UP", secondary: "" },
+                    { primary: "RIGHT", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true }
+                ]
+            },
+            NUMBERS: {
+                left: [
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "VOL-", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "VOL+", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "", secondary: "", transparent: true, thumb: true },
+                    { primary: "NEXT", secondary: "MEDIA", thumb: true }
+                ],
+                right: [
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "7", secondary: "" },
+                    { primary: "8", secondary: "" },
+                    { primary: "9", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "0", secondary: "" },
+                    { primary: "4", secondary: "" },
+                    { primary: "5", secondary: "" },
+                    { primary: "6", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "1", secondary: "" },
+                    { primary: "2", secondary: "" },
+                    { primary: "3", secondary: "" },
+                    { primary: "", secondary: "", transparent: true },
+                    { primary: "", secondary: "", transparent: true },
+                    
+                    { primary: "SHIFT+G", secondary: "", modifier: true, thumb: true },
+                    { primary: "0", secondary: "", thumb: true },
+                    { primary: "0", secondary: "", thumb: true }
+                ]
+            }
+        };
+        
+        // Function to render the keyboard based on the selected layer
+        function renderKeyboard(layer) {
+            const leftHalf = document.getElementById('left-half');
+            const rightHalf = document.getElementById('right-half');
+            
+            // Clear existing keys
+            leftHalf.innerHTML = '';
+            rightHalf.innerHTML = '';
+            
+            // Render left half
+            keymap[layer].left.forEach(key => {
+                renderKey(key, leftHalf);
+            });
+            
+            // Render right half
+            keymap[layer].right.forEach(key => {
+                renderKey(key, rightHalf);
+            });
+        }
+        
+        // Function to render a single key
+        function renderKey(key, container) {
+            const keyElement = document.createElement('div');
+            keyElement.className = 'key';
+            
+            if (key.thumb) {
+                keyElement.classList.add('thumb');
+            }
+            
+            if (key.transparent) {
+                keyElement.classList.add('transparent');
+            }
+            
+            if (key.highlight) {
+                keyElement.classList.add('key-highlight');
+                
+                // Make the highlighted key clickable if it has a layer associated with its secondary text
+                if (key.secondary) {
+                    const layerName = key.secondary;
+                    if (Object.keys(keymap).includes(layerName)) {
+                        keyElement.classList.add('clickable');
+                        keyElement.style.cursor = 'pointer';
+                        keyElement.addEventListener('click', function() {
+                            // Find and click the corresponding layer button
+                            const layerBtn = document.querySelector(`.layer-button[data-layer="${layerName}"]`);
+                            if (layerBtn) {
+                                layerBtn.click();
+                            }
+                        });
+                        
+                        // Add a tooltip
+                        keyElement.title = `Click to switch to ${layerName} layer`;
+                    }
+                }
+            }
+            
+            if (key.modifier) {
+                keyElement.classList.add('key-active');
+            }
+            
+            // Add primary and secondary labels
+            const primaryElement = document.createElement('div');
+            primaryElement.className = 'key-primary';
+            primaryElement.textContent = key.primary || '⋯';
+            keyElement.appendChild(primaryElement);
+            
+            if (key.secondary) {
+                const secondaryElement = document.createElement('div');
+                secondaryElement.className = 'key-secondary';
+                secondaryElement.textContent = key.secondary;
+                keyElement.appendChild(secondaryElement);
+            }
+            
+            container.appendChild(keyElement);
+        }
+        
+        // Initialize keyboard with the default layer
+        renderKeyboard('BASE');
+        
+        // Add event listeners to layer buttons
+        document.querySelectorAll('.layer-button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.layer-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Render the selected layer
+                renderKeyboard(this.dataset.layer);
+            });
+        });
+    </script>
+</body>
+</html> 
