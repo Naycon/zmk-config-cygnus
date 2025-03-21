@@ -23,6 +23,19 @@
             --key-shadow-hover: rgba(0, 0, 0, 0.2);
             --modifier-key-color: #ececec;
             --modifier-key-border: #d8d8d8;
+            --bootloader-key-color: #a0e6a0;
+            --bootloader-key-border: #68c468;
+        }
+        
+        @keyframes pulse-bootloader {
+            0%, 100% {
+                background-color: var(--bootloader-key-color);
+                border-color: var(--bootloader-key-border);
+            }
+            50% {
+                background-color: #7dd17d;
+                border-color: #4ca54c;
+            }
         }
         
         body {
@@ -309,10 +322,17 @@
             pointer-events: none;
         }
         
-        .key-active {
+        .key.key-active {
             background-color: var(--key-active);
             border-color: var(--key-active-border);
             box-shadow: 0 3px 5px rgba(255, 150, 0, 0.08);
+        }
+        
+        .key.bootloader-key {
+            background-color: var(--bootloader-key-color) !important;
+            border-color: var(--bootloader-key-border) !important;
+            box-shadow: 0 3px 5px rgba(0, 150, 0, 0.08) !important;
+            animation: pulse-bootloader 2s infinite !important;
         }
         
         .legend {
@@ -338,6 +358,58 @@
         
         .legend-text {
             font-size: 14px;
+        }
+        
+        .legend-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 10px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: var(--bootloader-key-border);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
         }
         
         .info {
@@ -634,6 +706,17 @@
         <div class="legend-item">
             <div class="legend-color" style="background-color: var(--key-active);"></div>
             <div class="legend-text">Modifier Key</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: var(--bootloader-key-color);"></div>
+            <div class="legend-text">Bootloader Combo Key</div>
+        </div>
+        <div class="legend-item legend-toggle">
+            <label class="toggle-switch">
+                <input type="checkbox" id="show-bootloader-toggle">
+                <span class="toggle-slider"></span>
+            </label>
+            <div class="legend-text">Show Bootloader Combo Keys</div>
         </div>
     </div>
     
@@ -982,20 +1065,27 @@
             rightHalf.innerHTML = '';
             
             // Render left half
-            keymap[layer].left.forEach(key => {
-                renderKey(key, leftHalf);
+            keymap[layer].left.forEach((key, index) => {
+                renderKey(key, leftHalf, index, 'left');
             });
             
             // Render right half
-            keymap[layer].right.forEach(key => {
-                renderKey(key, rightHalf);
+            keymap[layer].right.forEach((key, index) => {
+                renderKey(key, rightHalf, index, 'right');
             });
+            
+            // Apply bootloader key highlighting if the toggle is checked
+            if (document.getElementById('show-bootloader-toggle').checked) {
+                highlightBootloaderKeys();
+            }
         }
         
         // Function to render a single key
-        function renderKey(key, container) {
+        function renderKey(key, container, index, half) {
             const keyElement = document.createElement('div');
             keyElement.className = 'key';
+            keyElement.dataset.index = index;
+            keyElement.dataset.half = half;
             
             if (key.thumb) {
                 keyElement.classList.add('thumb');
@@ -1048,6 +1138,33 @@
             container.appendChild(keyElement);
         }
         
+        // Function to highlight bootloader combo keys
+        function highlightBootloaderKeys() {
+            // Clear previous bootloader key highlighting
+            document.querySelectorAll('.bootloader-key').forEach(key => {
+                key.classList.remove('bootloader-key');
+            });
+            
+            // If the toggle is not checked, return
+            if (!document.getElementById('show-bootloader-toggle').checked) {
+                return;
+            }
+            
+            // Left bootloader combo: TAB + SHIFT + F (key positions 0, 12, 10)
+            const leftBootloaderPositions = [0, 12, 10];
+            leftBootloaderPositions.forEach(pos => {
+                const key = document.querySelector(`.half.left .key[data-index="${pos}"]`);
+                if (key) key.classList.add('bootloader-key');
+            });
+            
+            // Right bootloader combo: J + MEDIA PLAY + Å (key positions 7, 17, 5)
+            const rightBootloaderPositions = [7, 17, 5];
+            rightBootloaderPositions.forEach(pos => {
+                const key = document.querySelector(`.half.right .key[data-index="${pos}"]`);
+                if (key) key.classList.add('bootloader-key');
+            });
+        }
+        
         // Initialize keyboard with the default layer
         renderKeyboard('BASE');
         
@@ -1065,6 +1182,11 @@
                 // Render the selected layer
                 renderKeyboard(this.dataset.layer);
             });
+        });
+        
+        // Add event listener to bootloader toggle
+        document.getElementById('show-bootloader-toggle').addEventListener('change', function() {
+            highlightBootloaderKeys();
         });
     </script>
 </body>
