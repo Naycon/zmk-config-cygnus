@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZMK Wiring Visualization - Cygnus Keyboard</title>
+    <style>
+        :root {
+            --key-color: #ffffff;
+            --key-border: #e0e0e0;
+            --key-text: #333;
+            --row-color: #c2e3ff;
+            --row-border: #93c4ff;
+            --col-color: #ffecbd;
+            --col-border: #ffda8a;
+            --bg-color: #2a2a2a;
+            --text-color: #f0f0f0;
+            --layer-btn-bg: #3a3a3a;
+            --layer-btn-active: #505050;
+            --keyboard-bg: #f5f5f5;
+            --keyboard-border: #e2e2e2;
+            --key-shadow: rgba(0, 0, 0, 0.15);
+            --key-shadow-hover: rgba(0, 0, 0, 0.2);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            margin-top: 5px;
+            margin-bottom: 20px;
+            font-weight: normal;
+            font-size: 1.2rem;
+            color: #aaa;
+        }
+        
+        .keyboard-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            margin-top: 40px;
+        }
+        
+        .keyboard-layout {
+            position: relative;
+            width: 100%;
+            background-color: var(--keyboard-bg);
+            border-radius: 20px;
+            padding: 40px;
+            box-sizing: border-box;
+            margin-bottom: 60px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            display: flex;
+            min-height: 550px;
+            padding-bottom: 100px;
+        }
+        
+        .keyboard-half {
+            flex: 2;
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(4, auto);
+            gap: 10px;
+            padding: 20px;
+            z-index: 1;
+        }
+        
+        .controller-half {
+            flex: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .key {
+            width: 60px;
+            height: 60px;
+            background-color: var(--key-color);
+            border: 1px solid var(--key-border);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+        
+        .key-symbol {
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--key-text);
+        }
+        
+        .key-coords {
+            font-size: 10px;
+            color: #666;
+            margin-top: 3px;
+        }
+        
+        /* Key positions */
+        .row0 { grid-row: 1; }
+        .row1 { grid-row: 2; }
+        .row2 { grid-row: 3; }
+        .row3 { grid-row: 4; }
+        
+        .col0 { grid-column: 1; }
+        .col1 { grid-column: 2; }
+        .col2 { grid-column: 3; }
+        .col3 { grid-column: 4; }
+        .col4 { grid-column: 5; }
+        .col5 { grid-column: 6; }
+        
+        .controller {
+            width: 180px;
+            height: 280px;
+            background-color: #111;
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 15px;
+            box-sizing: border-box;
+            z-index: 2;
+        }
+        
+        .controller:after {
+            content: "nRF52840";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .controller-pin {
+            width: 10px;
+            height: 10px;
+            background-color: #ffd700;
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 0 3px rgba(255, 215, 0, 0.5);
+        }
+
+        /* Left side pins */
+        #pin-d0 { top: 10%; left: -5px; } /* P0.08 */
+        #pin-d1 { top: 20%; left: -5px; } /* P0.06 */
+        #pin-d2 { top: 30%; left: -5px; } /* P0.17 - Col 1 */
+        #pin-d3 { top: 40%; left: -5px; } /* P0.20 - Col 0 */
+        #pin-d4 { top: 50%; left: -5px; } /* P0.22 - Row 0 */
+        #pin-d5 { top: 60%; left: -5px; } /* P0.24 - Row 1 */
+        #pin-d6 { top: 70%; left: -5px; } /* P1.00 - Row 2 */
+        #pin-d7 { top: 80%; left: -5px; } /* P0.11 - Row 3 */
+        
+        /* Right side pins */
+        #pin-d10 { top: 80%; right: -5px; } /* P0.09 - Col 5 */
+        #pin-d13 { top: 75%; right: -5px; } /* P0.10 - Col 4 */
+        #pin-d14 { top: 70%; right: -5px; } /* P1.11 - Col 3 */
+        #pin-d15 { top: 60%; right: -5px; } /* P1.13 - Not connected */
+        #pin-d16 { top: 50%; right: -5px; } /* Not used */
+        #pin-d19 { top: 40%; right: -5px; } /* P0.02 - Col 2 */
+        #pin-d20 { top: 30%; right: -5px; } /* P0.29 - Not connected */
+        #pin-d21 { top: 20%; right: -5px; } /* P0.31 - Not connected */
+        
+        .pin-label {
+            position: absolute;
+            font-size: 9px;
+            color: #000;
+            white-space: nowrap;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 2px 4px;
+            border-radius: 3px;
+            pointer-events: none;
+        }
+        
+        .pin-left .pin-label {
+            left: 18px;
+            top: -2px;
+        }
+        
+        .pin-right .pin-label {
+            right: 18px;
+            top: -2px;
+        }
+        
+        /* SVG wiring overlay */
+        .wiring-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Color scheme for wires */
+        .row0-wire { stroke: #ff0000; }
+        .row1-wire { stroke: #ff69b4; }
+        .row2-wire { stroke: #ffa500; }
+        .row3-wire { stroke: #ffff00; }
+        
+        .col0-wire { stroke: #00ff00; }
+        .col1-wire { stroke: #0000ff; }
+        .col2-wire { stroke: #800080; }
+        .col3-wire { stroke: #00ffff; }
+        .col4-wire { stroke: #ff00ff; }
+        .col5-wire { stroke: #964B00; }
+        
+        .legend {
+            margin-top: 40px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+        
+        .legend-text {
+            font-size: 14px;
+        }
+        
+        .goto-keymap {
+            margin-top: 30px;
+            padding: 10px 20px;
+            background-color: var(--layer-btn-bg);
+            border: none;
+            border-radius: 4px;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .goto-keymap:hover {
+            background-color: var(--layer-btn-active);
+        }
+        
+        .info-box {
+            background-color: #ff6b6b;
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            max-width: 800px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .info-box-blue {
+            background-color: #4d96ff;
+        }
+        
+        /* Make layout responsive */
+        @media (max-width: 1000px) {
+            .keyboard-layout {
+                flex-direction: column;
+            }
+            
+            .keyboard-half {
+                margin-bottom: 40px;
+            }
+            
+            .controller-half {
+                padding-top: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .keyboard-half {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 5px;
+            }
+            
+            .key {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .key-symbol {
+                font-size: 14px;
+            }
+            
+            .key-coords {
+                font-size: 8px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .key {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .key-symbol {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Cygnus Keyboard Wiring</h1>
+    <h2>ZMK Firmware Matrix to Controller Connections</h2>
+    
+    <div class="info-box">
+        <strong>Charge current selection jumper:</strong>
+        Connect the "BOOST" jumper to increase charging current from 100mA to 300mA. Only do this if your battery is larger than 500mAh to avoid explosion.
+    </div>
+    <div class="info-box info-box-blue">
+        <strong>External VCC cutoff control:</strong>
+        When P0.13 is set low, the power supply to the 3.3V ~VCC pin will be turned off. This is useful for components that use less power when idle, such as RGB LEDs.
+    </div>
+    
+    <div class="keyboard-container">
+        <div class="keyboard-layout">
+            <!-- Keyboard Half -->
+            <div class="keyboard-half">
+                <!-- Row 0 -->
+                <div class="key row0 col0" data-row="0" data-col="0" id="key-r0c0">
+                    <div class="key-symbol">TAB</div>
+                    <div class="key-coords">P0.22/P0.20</div>
+                </div>
+                <div class="key row0 col1" data-row="0" data-col="1" id="key-r0c1">
+                    <div class="key-symbol">Q</div>
+                    <div class="key-coords">P0.22/P0.17</div>
+                </div>
+                <div class="key row0 col2" data-row="0" data-col="2" id="key-r0c2">
+                    <div class="key-symbol">W</div>
+                    <div class="key-coords">P0.22/P0.02</div>
+                </div>
+                <div class="key row0 col3" data-row="0" data-col="3" id="key-r0c3">
+                    <div class="key-symbol">E</div>
+                    <div class="key-coords">P0.22/P1.11</div>
+                </div>
+                <div class="key row0 col4" data-row="0" data-col="4" id="key-r0c4">
+                    <div class="key-symbol">R</div>
+                    <div class="key-coords">P0.22/P0.10</div>
+                </div>
+                <div class="key row0 col5" data-row="0" data-col="5" id="key-r0c5">
+                    <div class="key-symbol">T</div>
+                    <div class="key-coords">P0.22/P0.09</div>
+                </div>
+                
+                <!-- Row 1 -->
+                <div class="key row1 col0" data-row="1" data-col="0" id="key-r1c0">
+                    <div class="key-symbol">ESC</div>
+                    <div class="key-coords">P0.24/P0.20</div>
+                </div>
+                <div class="key row1 col1" data-row="1" data-col="1" id="key-r1c1">
+                    <div class="key-symbol">A</div>
+                    <div class="key-coords">P0.24/P0.17</div>
+                </div>
+                <div class="key row1 col2" data-row="1" data-col="2" id="key-r1c2">
+                    <div class="key-symbol">S</div>
+                    <div class="key-coords">P0.24/P0.02</div>
+                </div>
+                <div class="key row1 col3" data-row="1" data-col="3" id="key-r1c3">
+                    <div class="key-symbol">D</div>
+                    <div class="key-coords">P0.24/P1.11</div>
+                </div>
+                <div class="key row1 col4" data-row="1" data-col="4" id="key-r1c4">
+                    <div class="key-symbol">F</div>
+                    <div class="key-coords">P0.24/P0.10</div>
+                </div>
+                <div class="key row1 col5" data-row="1" data-col="5" id="key-r1c5">
+                    <div class="key-symbol">G</div>
+                    <div class="key-coords">P0.24/P0.09</div>
+                </div>
+                
+                <!-- Row 2 -->
+                <div class="key row2 col0" data-row="2" data-col="0" id="key-r2c0">
+                    <div class="key-symbol">SHIFT</div>
+                    <div class="key-coords">P1.00/P0.20</div>
+                </div>
+                <div class="key row2 col1" data-row="2" data-col="1" id="key-r2c1">
+                    <div class="key-symbol">Z</div>
+                    <div class="key-coords">P1.00/P0.17</div>
+                </div>
+                <div class="key row2 col2" data-row="2" data-col="2" id="key-r2c2">
+                    <div class="key-symbol">X</div>
+                    <div class="key-coords">P1.00/P0.02</div>
+                </div>
+                <div class="key row2 col3" data-row="2" data-col="3" id="key-r2c3">
+                    <div class="key-symbol">C</div>
+                    <div class="key-coords">P1.00/P1.11</div>
+                </div>
+                <div class="key row2 col4" data-row="2" data-col="4" id="key-r2c4">
+                    <div class="key-symbol">V</div>
+                    <div class="key-coords">P1.00/P0.10</div>
+                </div>
+                <div class="key row2 col5" data-row="2" data-col="5" id="key-r2c5">
+                    <div class="key-symbol">B</div>
+                    <div class="key-coords">P1.00/P0.09</div>
+                </div>
+                
+                <!-- Row 3 (Thumbs) -->
+                <div class="key row3 col3" data-row="3" data-col="3" id="key-r3c3">
+                    <div class="key-symbol">ALT</div>
+                    <div class="key-coords">P0.11/P1.11</div>
+                </div>
+                <div class="key row3 col4" data-row="3" data-col="4" id="key-r3c4">
+                    <div class="key-symbol">GUI</div>
+                    <div class="key-coords">P0.11/P0.10</div>
+                </div>
+                <div class="key row3 col5" data-row="3" data-col="5" id="key-r3c5">
+                    <div class="key-symbol">SPC</div>
+                    <div class="key-coords">P0.11/P0.09</div>
+                </div>
+            </div>
+            
+            <!-- Controller Half -->
+            <div class="controller-half">
+                <div class="controller">
+                    <!-- Left side pins -->
+                    <div class="controller-pin pin-left" id="pin-d0">
+                        <div class="pin-label">P0.08</div>
+                    </div>
+                    <div class="controller-pin pin-left" id="pin-d1">
+                        <div class="pin-label">P0.06</div>
+                    </div>
+                    <div class="controller-pin pin-left" id="pin-d2">
+                        <div class="pin-label">P0.17</div>
+                    </div>
+                    <div class="controller-pin pin-left" id="pin-d3">
+                        <div class="pin-label">P0.20</div>
+                    </div>
+                    <div class="controller-pin pin-left" id="pin-d4">
+                        <div class="pin-label">P0.22</div>
+                    </div>
+                    <div class="controller-pin pin-left" id="pin-d5">
+                        <div class="pin-label">P0.24</div>
+                    </div>
+                    <div class="controller-pin pin-left" id="pin-d6">
+                        <div class="pin-label">P1.00</div>
+                    </div>
+                    <div class="controller-pin pin-left" id="pin-d7">
+                        <div class="pin-label">P0.11</div>
+                    </div>
+                    
+                    <!-- Right side pins -->
+                    <div class="controller-pin pin-right" id="pin-d10">
+                        <div class="pin-label">P0.09</div>
+                    </div>
+                    <div class="controller-pin pin-right" id="pin-d13">
+                        <div class="pin-label">P0.10</div>
+                    </div>
+                    <div class="controller-pin pin-right" id="pin-d14">
+                        <div class="pin-label">P1.11</div>
+                    </div>
+                    <div class="controller-pin pin-right" id="pin-d15">
+                        <div class="pin-label">P1.13</div>
+                    </div>
+                    <div class="controller-pin pin-right" id="pin-d19">
+                        <div class="pin-label">P0.02</div>
+                    </div>
+                    <div class="controller-pin pin-right" id="pin-d20">
+                        <div class="pin-label">P0.29</div>
+                    </div>
+                    <div class="controller-pin pin-right" id="pin-d21">
+                        <div class="pin-label">P0.31</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SVG for wiring overlay -->
+            <svg class="wiring-overlay" id="wiring-svg"></svg>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ff0000;"></div>
+                <div class="legend-text">Row 0 - P0.22</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ff69b4;"></div>
+                <div class="legend-text">Row 1 - P0.24</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ffa500;"></div>
+                <div class="legend-text">Row 2 - P1.00</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ffff00;"></div>
+                <div class="legend-text">Row 3 - P0.11</div>
+            </div>
+            
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #00ff00;"></div>
+                <div class="legend-text">Col 0 - P0.20</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #0000ff;"></div>
+                <div class="legend-text">Col 1 - P0.17</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #800080;"></div>
+                <div class="legend-text">Col 2 - P0.02</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #00ffff;"></div>
+                <div class="legend-text">Col 3 - P1.11</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ff00ff;"></div>
+                <div class="legend-text">Col 4 - P0.10</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #964B00;"></div>
+                <div class="legend-text">Col 5 - P0.09</div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="display: flex; gap: 10px; justify-content: center">
+        <a href="wiring_right.html" class="goto-keymap">View Right Half Wiring</a>
+        <a href="keymap.html" class="goto-keymap">View Keymap Visualization</a>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create SVG wiring
+            createSVGWiring();
+            
+            // Handle window resize events
+            window.addEventListener('resize', function() {
+                // Clear existing wiring
+                const svg = document.getElementById('wiring-svg');
+                svg.innerHTML = '';
+                
+                // Redraw wiring
+                createSVGWiring();
+            });
+        });
+        
+        function createSVGWiring() {
+            const svg = document.getElementById('wiring-svg');
+            const layout = document.querySelector('.keyboard-layout');
+            
+            // Set SVG viewBox to match layout size
+            svg.setAttribute('width', layout.offsetWidth);
+            svg.setAttribute('height', layout.offsetHeight);
+            
+            // Map row numbers to pin IDs
+            const rowToPinMap = {
+                0: 'pin-d4', // Row 0 -> P0.22 / D4
+                1: 'pin-d5', // Row 1 -> P0.24 / D5
+                2: 'pin-d6', // Row 2 -> P1.00 / D6
+                3: 'pin-d7'  // Row 3 -> P0.11 / D7
+            };
+            
+            // Map column numbers to pin IDs
+            const colToPinMap = {
+                0: 'pin-d3',  // Col 0 -> P0.20 / D3
+                1: 'pin-d2',  // Col 1 -> P0.17 / D2
+                2: 'pin-d19', // Col 2 -> P0.02 / D19
+                3: 'pin-d14', // Col 3 -> P1.11 / D14
+                4: 'pin-d13', // Col 4 -> P0.10 / D13
+                5: 'pin-d10'  // Col 5 -> P0.09 / D10
+            };
+
+            const layoutRect = layout.getBoundingClientRect();
+            const controllerRect = document.querySelector('.controller').getBoundingClientRect();
+            
+            // Define the controller safe zone (no vertical wires in this area)
+            const controllerSafeZone = {
+                left: controllerRect.left - layoutRect.left - 40, // 40px margin
+                right: controllerRect.right - layoutRect.left + 10,
+                top: controllerRect.top - layoutRect.top - 10,
+                bottom: controllerRect.bottom - layoutRect.top + 10
+            };
+            
+            // Identify right-side pins
+            const rightSidePins = ['pin-d10', 'pin-d13', 'pin-d14', 'pin-d15', 'pin-d19', 'pin-d20', 'pin-d21'];
+            
+            // Define path for wires to go below and around controller
+            const belowControllerY = controllerRect.bottom - layoutRect.top + 40;
+            const rightOfControllerX = controllerRect.right - layoutRect.left + 20;
+            
+            // Calculate the vertical spacing for each row of wires approaching the controller
+            const rowVerticalOffsets = {};
+            for (let row = 0; row < 4; row++) {
+                rowVerticalOffsets[row] = layoutRect.top + 60 + row * 30 - layoutRect.top;
+            }
+            
+            // Calculate the vertical spacing for column wires at the bottom
+            const colBottomOffsets = {};
+            const bottomY = layoutRect.bottom - 120 - layoutRect.top;
+            for (let col = 0; col < 6; col++) {
+                colBottomOffsets[col] = bottomY - col * 15;
+            }
+            
+            // Draw columns first (so rows appear on top)
+            for (let col = 0; col < 6; col++) {
+                drawColumnWire(svg, col, colToPinMap[col], colBottomOffsets[col], layoutRect, controllerSafeZone, rightSidePins, belowControllerY, rightOfControllerX);
+            }
+            
+            // Then draw rows
+            for (let row = 0; row < 4; row++) {
+                drawRowWire(svg, row, rowToPinMap[row], rowVerticalOffsets[row], layoutRect, controllerSafeZone, rightSidePins, belowControllerY, rightOfControllerX);
+            }
+            
+            // Debug: Draw controller safe zone (uncomment to visualize)
+            // const safeZoneRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            // safeZoneRect.setAttribute('x', controllerSafeZone.left);
+            // safeZoneRect.setAttribute('y', controllerSafeZone.top);
+            // safeZoneRect.setAttribute('width', controllerSafeZone.right - controllerSafeZone.left);
+            // safeZoneRect.setAttribute('height', controllerSafeZone.bottom - controllerSafeZone.top);
+            // safeZoneRect.setAttribute('fill', 'none');
+            // safeZoneRect.setAttribute('stroke', '#888');
+            // safeZoneRect.setAttribute('stroke-dasharray', '4,4');
+            // svg.appendChild(safeZoneRect);
+        }
+        
+        function drawRowWire(svg, row, pinId, rowOffset, layoutRect, safezone, rightSidePins, belowControllerY, rightOfControllerX) {
+            // Get keys in this row, sorted by column
+            const keys = Array.from(document.querySelectorAll(`.key[data-row="${row}"]`))
+                .sort((a, b) => {
+                    return parseInt(a.getAttribute('data-col')) - parseInt(b.getAttribute('data-col'));
+                });
+                
+            if (keys.length === 0) return;
+            
+            const pin = document.getElementById(pinId);
+            if (!pin) return;
+            
+            // Get pin position
+            const pinRect = pin.getBoundingClientRect();
+            const pinX = pinRect.left + pinRect.width/2 - layoutRect.left;
+            const pinY = pinRect.top + pinRect.height/2 - layoutRect.top;
+            
+            // Start SVG path
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            let d = '';
+            
+            // Start from leftmost key
+            const firstKeyRect = keys[0].getBoundingClientRect();
+            const startX = firstKeyRect.left + firstKeyRect.width/2 - layoutRect.left;
+            const startY = firstKeyRect.top + firstKeyRect.height/2 - layoutRect.top;
+            
+            d += `M ${startX} ${startY}`;
+            
+            // Go through each key horizontally
+            for (let i = 1; i < keys.length; i++) {
+                const keyRect = keys[i].getBoundingClientRect();
+                const keyX = keyRect.left + keyRect.width/2 - layoutRect.left;
+                const keyY = keyRect.top + keyRect.height/2 - layoutRect.top;
+                
+                d += ` L ${keyX} ${keyY}`;
+            }
+            
+            // Get rightmost key position
+            const lastKeyRect = keys[keys.length-1].getBoundingClientRect();
+            const endX = lastKeyRect.left + lastKeyRect.width/2 - layoutRect.left;
+            
+            // Continue straight right for a bit to clear all keys
+            d += ` L ${endX + 30} ${startY}`;
+            
+            // Check if this wire goes to a right-side pin
+            const isRightSidePin = rightSidePins.includes(pinId);
+            
+            if (isRightSidePin) {
+                // Go down to path below controller
+                d += ` L ${endX + 30} ${belowControllerY + row * 8}`;
+                
+                // Go right past the controller
+                d += ` L ${rightOfControllerX} ${belowControllerY + row * 8}`;
+                
+                // Go up to align with the pin
+                d += ` L ${rightOfControllerX} ${pinY}`;
+                
+                // Connect to pin
+                d += ` L ${pinX} ${pinY}`;
+            } else {
+                // For left side pins, use the previous routing logic
+                // Approach the safe zone boundary (but stay outside it)
+                const verticalTransitionX = safezone.left - 10 - row * 5; // Stagger rows for clarity
+                d += ` L ${verticalTransitionX} ${startY}`;
+                
+                // Go vertically to align with the pin's Y position
+                d += ` L ${verticalTransitionX} ${pinY}`;
+                
+                // Finally, go horizontally to the pin
+                d += ` L ${pinX} ${pinY}`;
+            }
+            
+            path.setAttribute('d', d);
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke-width', '2');
+            path.setAttribute('class', `row${row}-wire`);
+            svg.appendChild(path);
+        }
+        
+        function drawColumnWire(svg, col, pinId, bottomOffset, layoutRect, safezone, rightSidePins, belowControllerY, rightOfControllerX) {
+            // Get keys in this column, sorted by row
+            const keys = Array.from(document.querySelectorAll(`.key[data-col="${col}"]`))
+                .sort((a, b) => {
+                    return parseInt(a.getAttribute('data-row')) - parseInt(b.getAttribute('data-row'));
+                });
+                
+            if (keys.length === 0) return;
+            
+            const pin = document.getElementById(pinId);
+            if (!pin) return;
+            
+            // Get pin position
+            const pinRect = pin.getBoundingClientRect();
+            const pinX = pinRect.left + pinRect.width/2 - layoutRect.left;
+            const pinY = pinRect.top + pinRect.height/2 - layoutRect.top;
+            
+            // Create column straight line down through each key
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            let d = '';
+            
+            // Calculate the straight vertical line that passes through all keys
+            const firstKeyRect = keys[0].getBoundingClientRect();
+            const columnX = firstKeyRect.left + firstKeyRect.width/2 - layoutRect.left;
+            const startY = firstKeyRect.top + firstKeyRect.height/2 - layoutRect.top;
+            
+            // Find the last key's position
+            const lastKeyRect = keys[keys.length-1].getBoundingClientRect();
+            const lastKeyY = lastKeyRect.top + lastKeyRect.height/2 - layoutRect.top;
+            
+            // Start at the top key
+            d += `M ${columnX} ${startY}`;
+            
+            // Go straight down through all keys to the last key
+            d += ` L ${columnX} ${lastKeyY}`;
+            
+            // Go down slightly more to clear all keys
+            const bottomWireY = belowControllerY + 30 + col * 5;
+            d += ` L ${columnX} ${bottomWireY}`;
+            
+            // Check if this wire goes to a right-side pin
+            const isRightSidePin = rightSidePins.includes(pinId);
+            
+            if (isRightSidePin) {
+                // Go right past the controller
+                d += ` L ${rightOfControllerX + col * 10} ${bottomWireY}`;
+                
+                // Go up to align with the pin
+                d += ` L ${rightOfControllerX + col * 10} ${pinY}`;
+                
+                // Connect to pin
+                d += ` L ${pinX} ${pinY}`;
+            } else {
+                // For left side pins, use the previous routing logic
+                // Horizontal approach toward controller but not into safe zone
+                const horizontalApproachX = safezone.left - 20 - col * 8; // Stagger columns
+                d += ` L ${horizontalApproachX} ${bottomWireY}`;
+                
+                // Go vertically to pin Y level
+                d += ` L ${horizontalApproachX} ${pinY}`;
+                
+                // Finally go horizontally to the pin
+                d += ` L ${pinX} ${pinY}`;
+            }
+            
+            path.setAttribute('d', d);
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke-width', '2');
+            path.setAttribute('class', `col${col}-wire`);
+            svg.appendChild(path);
+        }
+    </script>
+</body>
+</html> 
