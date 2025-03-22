@@ -168,22 +168,22 @@
         /* Left side pins */
         #pin-d0 { top: 10%; left: -5px; } /* P0.08 */
         #pin-d1 { top: 20%; left: -5px; } /* P0.06 */
-        #pin-d2 { top: 30%; left: -5px; } /* P0.17 - Col 4 */
-        #pin-d3 { top: 40%; left: -5px; } /* P0.20 - Col 5 */
+        #pin-d2 { top: 30%; left: -5px; } /* P0.17 */
+        #pin-d3 { top: 40%; left: -5px; } /* P0.20 */
         #pin-d4 { top: 50%; left: -5px; } /* P0.22 - Row 0 */
         #pin-d5 { top: 60%; left: -5px; } /* P0.24 - Row 1 */
         #pin-d6 { top: 70%; left: -5px; } /* P1.00 - Row 2 */
         #pin-d7 { top: 80%; left: -5px; } /* P0.11 - Row 3 */
         
         /* Right side pins */
-        #pin-d10 { top: 80%; right: -5px; } /* P0.09 - Col 0 */
-        #pin-d13 { top: 75%; right: -5px; } /* P0.10 - Col 1 */
-        #pin-d14 { top: 70%; right: -5px; } /* P1.11 - Col 2 */
-        #pin-d15 { top: 60%; right: -5px; } /* P1.13 - Not connected */
-        #pin-d16 { top: 50%; right: -5px; } /* Not used */
-        #pin-d19 { top: 40%; right: -5px; } /* P0.02 - Col 3 */
-        #pin-d20 { top: 30%; right: -5px; } /* P0.29 - Not connected */
-        #pin-d21 { top: 20%; right: -5px; } /* P0.31 - Not connected */
+        #pin-d10 { top: 80%; right: -5px; } /* P0.09 */
+        #pin-d16 { top: 65%; right: -5px; } /* P0.10 */
+        #pin-d14 { top: 70%; right: -5px; } /* P1.11 */
+        #pin-d15 { top: 60%; right: -5px; } /* P1.13 */
+        #pin-d18 { top: 45%; right: -5px; } /* P1.15 */
+        #pin-d19 { top: 40%; right: -5px; } /* P0.02 */
+        #pin-d20 { top: 30%; right: -5px; } /* P0.29 */
+        #pin-d21 { top: 20%; right: -5px; } /* P0.31 */
         
         .pin-label {
             position: absolute;
@@ -381,7 +381,7 @@
                     <div class="controller-pin pin-right" id="pin-d10">
                         <div class="pin-label">P0.09</div>
                     </div>
-                    <div class="controller-pin pin-right" id="pin-d13">
+                    <div class="controller-pin pin-right" id="pin-d16">
                         <div class="pin-label">P0.10</div>
                     </div>
                     <div class="controller-pin pin-right" id="pin-d14">
@@ -389,6 +389,9 @@
                     </div>
                     <div class="controller-pin pin-right" id="pin-d15">
                         <div class="pin-label">P1.13</div>
+                    </div>
+                    <div class="controller-pin pin-right" id="pin-d18">
+                        <div class="pin-label">P1.15</div>
                     </div>
                     <div class="controller-pin pin-right" id="pin-d19">
                         <div class="pin-label">P0.02</div>
@@ -407,93 +410,93 @@
                 <!-- Row 0 -->
                 <div class="key row0 col0" data-row="0" data-col="0" id="key-r0c0">
                     <div class="key-symbol">Y</div>
-                    <div class="key-coords">P0.22/P0.09</div>
+                    <div class="key-coords">R: P0.22<br>C: P0.09</div>
                 </div>
                 <div class="key row0 col1" data-row="0" data-col="1" id="key-r0c1">
                     <div class="key-symbol">U</div>
-                    <div class="key-coords">P0.22/P0.10</div>
+                    <div class="key-coords">R: P0.22<br>C: P0.10</div>
                 </div>
                 <div class="key row0 col2" data-row="0" data-col="2" id="key-r0c2">
                     <div class="key-symbol">I</div>
-                    <div class="key-coords">P0.22/P1.11</div>
+                    <div class="key-coords">R: P0.22<br>C: P1.11</div>
                 </div>
                 <div class="key row0 col3" data-row="0" data-col="3" id="key-r0c3">
                     <div class="key-symbol">O</div>
-                    <div class="key-coords">P0.22/P0.02</div>
+                    <div class="key-coords">R: P0.22<br>C: P0.02</div>
                 </div>
                 <div class="key row0 col4" data-row="0" data-col="4" id="key-r0c4">
                     <div class="key-symbol">P</div>
-                    <div class="key-coords">P0.22/P0.17</div>
+                    <div class="key-coords">R: P0.22<br>C: P1.15</div>
                 </div>
                 <div class="key row0 col5" data-row="0" data-col="5" id="key-r0c5">
                     <div class="key-symbol">Å</div>
-                    <div class="key-coords">P0.22/P0.20</div>
+                    <div class="key-coords">R: P0.22<br>C: P1.13</div>
                 </div>
                 
                 <!-- Row 1 -->
                 <div class="key row1 col0" data-row="1" data-col="0" id="key-r1c0">
                     <div class="key-symbol">H</div>
-                    <div class="key-coords">P0.24/P0.09</div>
+                    <div class="key-coords">R: P0.24<br>C: P0.09</div>
                 </div>
                 <div class="key row1 col1" data-row="1" data-col="1" id="key-r1c1">
                     <div class="key-symbol">J</div>
-                    <div class="key-coords">P0.24/P0.10</div>
+                    <div class="key-coords">R: P0.24<br>C: P0.10</div>
                 </div>
                 <div class="key row1 col2" data-row="1" data-col="2" id="key-r1c2">
                     <div class="key-symbol">K</div>
-                    <div class="key-coords">P0.24/P1.11</div>
+                    <div class="key-coords">R: P0.24<br>C: P1.11</div>
                 </div>
                 <div class="key row1 col3" data-row="1" data-col="3" id="key-r1c3">
                     <div class="key-symbol">L</div>
-                    <div class="key-coords">P0.24/P0.02</div>
+                    <div class="key-coords">R: P0.24<br>C: P0.02</div>
                 </div>
                 <div class="key row1 col4" data-row="1" data-col="4" id="key-r1c4">
                     <div class="key-symbol">Ö</div>
-                    <div class="key-coords">P0.24/P0.17</div>
+                    <div class="key-coords">R: P0.24<br>C: P1.15</div>
                 </div>
                 <div class="key row1 col5" data-row="1" data-col="5" id="key-r1c5">
                     <div class="key-symbol">Ä</div>
-                    <div class="key-coords">P0.24/P0.20</div>
+                    <div class="key-coords">R: P0.24<br>C: P1.13</div>
                 </div>
                 
                 <!-- Row 2 -->
                 <div class="key row2 col0" data-row="2" data-col="0" id="key-r2c0">
                     <div class="key-symbol">N</div>
-                    <div class="key-coords">P1.00/P0.09</div>
+                    <div class="key-coords">R: P1.00<br>C: P0.09</div>
                 </div>
                 <div class="key row2 col1" data-row="2" data-col="1" id="key-r2c1">
                     <div class="key-symbol">M</div>
-                    <div class="key-coords">P1.00/P0.10</div>
+                    <div class="key-coords">R: P1.00<br>C: P0.10</div>
                 </div>
                 <div class="key row2 col2" data-row="2" data-col="2" id="key-r2c2">
                     <div class="key-symbol">,</div>
-                    <div class="key-coords">P1.00/P1.11</div>
+                    <div class="key-coords">R: P1.00<br>C: P1.11</div>
                 </div>
                 <div class="key row2 col3" data-row="2" data-col="3" id="key-r2c3">
                     <div class="key-symbol">.</div>
-                    <div class="key-coords">P1.00/P0.02</div>
+                    <div class="key-coords">R: P1.00<br>C: P0.02</div>
                 </div>
                 <div class="key row2 col4" data-row="2" data-col="4" id="key-r2c4">
                     <div class="key-symbol">/</div>
-                    <div class="key-coords">P1.00/P0.17</div>
+                    <div class="key-coords">R: P1.00<br>C: P1.15</div>
                 </div>
                 <div class="key row2 col5" data-row="2" data-col="5" id="key-r2c5">
                     <div class="key-symbol">MEDIA</div>
-                    <div class="key-coords">P1.00/P0.20</div>
+                    <div class="key-coords">R: P1.00<br>C: P1.13</div>
                 </div>
                 
                 <!-- Row 3 (Thumbs) -->
                 <div class="key row3 col0" data-row="3" data-col="0" id="key-r3c0">
                     <div class="key-symbol">CTRL</div>
-                    <div class="key-coords">P0.11/P0.09</div>
+                    <div class="key-coords">R: P0.11<br>C: P0.09</div>
                 </div>
                 <div class="key row3 col1" data-row="3" data-col="1" id="key-r3c1">
                     <div class="key-symbol">BKSPC</div>
-                    <div class="key-coords">P0.11/P0.10</div>
+                    <div class="key-coords">R: P0.11<br>C: P0.10</div>
                 </div>
                 <div class="key row3 col2" data-row="3" data-col="2" id="key-r3c2">
                     <div class="key-symbol">SYMBL</div>
-                    <div class="key-coords">P0.11/P1.11</div>
+                    <div class="key-coords">R: P0.11<br>C: P1.11</div>
                 </div>
             </div>
             
@@ -537,11 +540,11 @@
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: #ff00ff;"></div>
-                <div class="legend-text">Col 4 - P0.17</div>
+                <div class="legend-text">Col 4 - P1.15</div>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background-color: #964B00;"></div>
-                <div class="legend-text">Col 5 - P0.20</div>
+                <div class="legend-text">Col 5 - P1.13</div>
             </div>
         </div>
     </div>
@@ -586,11 +589,11 @@
             // Map column numbers to pin IDs for right half
             const colToPinMap = {
                 0: 'pin-d10', // Col 0 -> P0.09
-                1: 'pin-d13', // Col 1 -> P0.10
+                1: 'pin-d16', // Col 1 -> P0.10
                 2: 'pin-d14', // Col 2 -> P1.11
                 3: 'pin-d19', // Col 3 -> P0.02
-                4: 'pin-d2',  // Col 4 -> P0.17
-                5: 'pin-d3'   // Col 5 -> P0.20
+                4: 'pin-d18', // Col 4 -> P1.15
+                5: 'pin-d15'  // Col 5 -> P1.13
             };
 
             const layoutRect = layout.getBoundingClientRect();
@@ -605,7 +608,7 @@
             };
             
             // Identify right-side pins
-            const rightSidePins = ['pin-d10', 'pin-d13', 'pin-d14', 'pin-d15', 'pin-d19', 'pin-d20', 'pin-d21'];
+            const rightSidePins = ['pin-d10', 'pin-d16', 'pin-d14', 'pin-d15', 'pin-d18', 'pin-d19', 'pin-d20', 'pin-d21'];
             
             // Define path for wires to go below and around controller
             const belowControllerY = controllerRect.bottom - layoutRect.top + 40;
