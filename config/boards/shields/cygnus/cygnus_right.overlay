@@ -23,14 +23,15 @@
 };
 
 &kscan0 {
-    // Use the same column pin order for both sides
-    // The custom right_transform handles the reversing in software
+    // Column pins for the right side need to be in REVERSE physical order
+    // compared to the logical order in the matrix to handle the way
+    // the scanning is performed on this half
     col-gpios
-        = <&pro_micro 19 GPIO_ACTIVE_HIGH>
-        , <&pro_micro 18 GPIO_ACTIVE_HIGH>
-        , <&pro_micro 15 GPIO_ACTIVE_HIGH>
-        , <&pro_micro 14 GPIO_ACTIVE_HIGH>
-        , <&pro_micro 16 GPIO_ACTIVE_HIGH>
-        , <&pro_micro 10 GPIO_ACTIVE_HIGH>
+        = <&pro_micro 10 GPIO_ACTIVE_HIGH>    // rightmost column (physical col 5)
+        , <&pro_micro 16 GPIO_ACTIVE_HIGH>    // physical col 4
+        , <&pro_micro 14 GPIO_ACTIVE_HIGH>    // physical col 3
+        , <&pro_micro 15 GPIO_ACTIVE_HIGH>    // physical col 2
+        , <&pro_micro 18 GPIO_ACTIVE_HIGH>    // physical col 1
+        , <&pro_micro 19 GPIO_ACTIVE_HIGH>    // leftmost column (physical col 0)
         ;
 };
