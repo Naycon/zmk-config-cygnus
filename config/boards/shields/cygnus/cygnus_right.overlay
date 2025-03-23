@@ -11,9 +11,14 @@
 };
 
 /*
- * Use the default transform with column offset for the right half.
- * This assumes the physical wiring matches the scanning order.
+ * Use a custom transform matrix for the right side that handles
+ * the row scanning order differences.
  */
+/ {
+    chosen {
+        zmk,matrix_transform = &right_transform;
+    };
+};
 
 &kscan0 {
     // Column pins in the same logical order as the left half
