@@ -10,27 +10,20 @@
     col-offset = <6>;
 };
 
-/* 
- * Use a custom transform matrix for the right side that reverses the column
- * positions in software. This allows us to maintain the correct key mapping
- * while using the physical column order as wired on the PCB.
+/*
+ * Use the default transform with column offset for the right half.
+ * This assumes the physical wiring matches the scanning order.
  */
-/ {
-    chosen {
-        zmk,matrix_transform = &right_transform;
-    };
-};
 
 &kscan0 {
-    // Column pins in order from right to left on the physical PCB
-    // This matches the physical wiring but requires the custom transform
-    // to map to the correct keys
+    // Column pins in the same logical order as the left half
+    // but with physical pin assignments matching the hardware wiring
     col-gpios
-        = <&pro_micro 10 GPIO_ACTIVE_HIGH>
-        , <&pro_micro 16 GPIO_ACTIVE_HIGH>
-        , <&pro_micro 14 GPIO_ACTIVE_HIGH>
-        , <&pro_micro 15 GPIO_ACTIVE_HIGH>
+        = <&pro_micro 19 GPIO_ACTIVE_HIGH>
         , <&pro_micro 18 GPIO_ACTIVE_HIGH>
-        , <&pro_micro 19 GPIO_ACTIVE_HIGH>
+        , <&pro_micro 15 GPIO_ACTIVE_HIGH>
+        , <&pro_micro 14 GPIO_ACTIVE_HIGH>
+        , <&pro_micro 16 GPIO_ACTIVE_HIGH>
+        , <&pro_micro 10 GPIO_ACTIVE_HIGH>
         ;
 }; 
