@@ -15,8 +15,10 @@
  * positions in software. This allows us to maintain the correct key mapping
  * while using the physical column order as wired on the PCB.
  */
-&chosen {
-    zmk,matrix_transform = &right_transform;
+/ {
+    chosen {
+        zmk,matrix_transform = &right_transform;
+    };
 };
 
 &kscan0 {
