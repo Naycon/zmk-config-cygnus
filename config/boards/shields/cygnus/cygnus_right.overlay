@@ -16,12 +16,6 @@
  * order. This is needed because the pin scanning behavior on the right half
  * requires different handling for different rows.
  */
-/ {
-    chosen {
-        zmk,matrix_transform = &right_transform;
-    };
-};
-
 &kscan0 {
     // Column pins for the right side need to be in REVERSE physical order
     // compared to the logical order in the matrix to handle the way
