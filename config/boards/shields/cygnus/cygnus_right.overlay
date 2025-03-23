@@ -11,8 +11,10 @@
 };
 
 /*
- * Use a custom transform matrix for the right side that handles
- * the row scanning order differences.
+ * Use a custom transform matrix for the right side that reverses
+ * the column positions for rows 0, 1, and 2 but keeps row 3 in the original
+ * order. This is needed because the pin scanning behavior on the right half
+ * requires different handling for different rows.
  */
 / {
     chosen {
@@ -21,8 +23,8 @@
 };
 
 &kscan0 {
-    // Column pins in the same logical order as the left half
-    // but with physical pin assignments matching the hardware wiring
+    // Use the same column pin order for both sides
+    // The custom right_transform handles the reversing in software
     col-gpios
         = <&pro_micro 19 GPIO_ACTIVE_HIGH>
         , <&pro_micro 18 GPIO_ACTIVE_HIGH>
@@ -31,4 +33,4 @@
         , <&pro_micro 16 GPIO_ACTIVE_HIGH>
         , <&pro_micro 10 GPIO_ACTIVE_HIGH>
         ;
-}; 
+};
