@@ -24,8 +24,8 @@
         = <&pro_micro 10 GPIO_ACTIVE_HIGH>    // rightmost column (physical col 5)
         , <&pro_micro 16 GPIO_ACTIVE_HIGH>    // physical col 4
         , <&pro_micro 14 GPIO_ACTIVE_HIGH>    // physical col 3
-        , <&pro_micro 15 GPIO_ACTIVE_HIGH>    // physical col 2
-        , <&pro_micro 18 GPIO_ACTIVE_HIGH>    // physical col 1
-        , <&pro_micro 19 GPIO_ACTIVE_HIGH>    // leftmost column (physical col 0)
+        , <&pro_micro 19 GPIO_ACTIVE_HIGH>    // physical col 2
+        , <&pro_micro 15 GPIO_ACTIVE_HIGH>    // physical col 1
+        , <&pro_micro 18 GPIO_ACTIVE_HIGH>    // leftmost column (physical col 0)
         ;
 };
